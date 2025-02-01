@@ -1,0 +1,9 @@
+[submodule "OneDrive/Documents/Blockchain Bootcamp/FundMeCyfrin/lib/chainlink-brownie-contracts"]
+	path = OneDrive/Documents/Blockchain Bootcamp/FundMeCyfrin/lib/chainlink-brownie-contracts
+	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "OneDrive/Documents/Blockchain Bootcamp/FundMeCyfrin/lib/forge-std"]
+	path = OneDrive/Documents/Blockchain Bootcamp/FundMeCyfrin/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/chainlink-brownie-contracts"]
+	path = OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/chainlink-brownie-contracts
+	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
