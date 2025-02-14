@@ -13,3 +13,6 @@
 [submodule "OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/solmate"]
 	path = OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/foundry-devops"]
+	path = OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/foundry-devops
+	url = https://github.com/Cyfrin/foundry-devops
