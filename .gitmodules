@@ -10,3 +10,6 @@
 [submodule "OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/forge-std"]
 	path = OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/solmate"]
+	path = OneDrive/Documents/Blockchain Bootcamp/Raffle/lib/solmate
+	url = https://github.com/transmissions11/solmate
