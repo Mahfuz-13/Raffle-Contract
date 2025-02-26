@@ -67,4 +67,62 @@ contract RaffleTest is Test {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
     }
+
+    function testCheckUpKeepReturnsFalseIfItHasNoBalance() public {
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        (bool upKeepNeeded, ) = raffle.checkUpKeep(hex"");
+        assert(!upKeepNeeded);
+    }
+
+    function testCheckUpKeepReturnsFalseIfTheRaffleIsNotOpen() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep(hex"");
+        (bool upKeepNeeded, ) = raffle.checkUpKeep(hex"");
+        assert(!upKeepNeeded);
+    }
+
+    // Challenge:
+    // 1. testUpKeepReturnsFalseIfEnoughTimeHasPassed
+    // 2. testCheckUpKeepReturnsTrueWhenParametersAreGood
+
+    function testUpKeepReturnsFalseIfEnoughTimeHasPassed() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep(hex"");
+        (bool upKeepNeeded, ) = raffle.checkUpKeep(hex"");
+        assert(!upKeepNeeded);
+    }
+
+    function testPerformUpKeepCanOnlyRunIfCheckUpKeepIsTrue() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep("");
+    }
+
+    function testPerformUpKeepRevertsIfCheckUpKeepIsFalse() public {
+        uint256 currentBalance = 0;
+        uint256 numPlayers = 0;
+        Raffle.RaffleState rState = raffle.getRaffleState();
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        currentBalance += entranceFee;
+        numPlayers++;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Raffle.Raffle__UpKeepNotNedeed.selector,
+                currentBalance,
+                numPlayers,
+                rState
+            )
+        );
+        raffle.performUpkeep("");
+    }
 }
