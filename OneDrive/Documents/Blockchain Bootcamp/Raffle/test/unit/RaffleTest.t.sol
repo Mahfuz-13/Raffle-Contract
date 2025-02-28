@@ -5,6 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {Raffle} from "src/Raffle.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {VRFCoordinatorV2_5Mock} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 contract RaffleTest is Test {
     Raffle public raffle;
@@ -31,6 +33,14 @@ contract RaffleTest is Test {
         subscriptionId = config.subscriptionId;
         callbackGasLimit = config.callbackGasLimit;
         vm.deal(PLAYER, STARTING_PALYER_BALANCE);
+    }
+
+    modifier REntered() {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        _;
     }
 
     function testRaffleInitializesInOpenState() public view {
@@ -124,5 +134,46 @@ contract RaffleTest is Test {
             )
         );
         raffle.performUpkeep("");
+    }
+
+    function testPerformUpKeepUpdatesRaffleStateAndEmitsRequestId()
+        public
+        REntered
+    {
+        vm.recordLogs();
+        raffle.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[1].topics[1];
+        Raffle.RaffleState raffleState = raffle.getRaffleState();
+        assert(uint256(requestId) > 0);
+        assert(uint(raffleState) == 1);
+    }
+
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpKeep(
+        uint256 requestId
+    ) public REntered {
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
+            requestId,
+            address(raffle)
+        );
+    }
+
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney()
+        public
+        REntered
+    {
+        uint256 additionalEntrence = 3;
+        uint256 startingIndex = 1;
+        for (
+            uint i = startingIndex;
+            i < startingIndex + additionalEntrence;
+            i++
+        ) {
+            address newPlayer = address(uint160(i));
+            hoax(newPlayer, 1 ether);
+            raffle.enterRaffle{value: entranceFee}();
+        }
+        uint256 startingTimeStamp = raffle.getLastTimeStamp();
     }
 }
